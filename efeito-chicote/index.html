@@ -59,7 +59,10 @@ input[type=number],select{font:600 18px var(--fm);padding:9px 10px;border:1px so
 .passos li>b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font:700 16px/28px var(--fd);text-align:center}
 .slots{display:flex;gap:8px;margin:6px 0 4px}.slot{flex:1;border:1px solid var(--line);border-radius:5px;padding:6px 8px;font:600 20px var(--fm);background:var(--sunk);display:flex;flex-direction:column;gap:2px}.slot small{font:600 11px var(--fd);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
 .meta{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}.chip{align-self:flex-start;font:700 13px var(--fd);letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:4px}.chip.ok{background:#dff3e6;color:#0f5a2e}.chip.warn{background:#ffe9b8;color:#6a4500}.chip.bad{background:#fbdcd6;color:#8f2212}
-.custos td{padding:4px 0;font-size:13.5px;border-bottom:1px dashed var(--line)}.custos td.l{font-family:var(--fb)}
+.custos td{white-space:nowrap;padding:3px 0;font-size:13.5px;border-bottom:1px dashed var(--line)}.custos td.l{font-family:var(--fb)}
+.lucrobox{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:12px;background:var(--sunk)}.lucrobox>div:first-child{flex:none;min-width:118px}#spark{flex:1;min-width:0}#spark svg{display:block;width:100%;height:auto}
+.dre{margin:6px 0 4px;font-size:13.5px}.dre td{padding:2px 0;border:0;font-family:var(--fb);text-align:left}.dre td:last-child{font-family:var(--fm);padding-left:10px;white-space:nowrap;text-align:right}.dre tr.tot td{border-top:1px solid var(--ink-2);font-weight:700;padding-top:4px}
+#cena .pop{font:700 17px var(--fm);paint-order:stroke;stroke:#fff;stroke-width:4px;animation:rise 2.2s ease-out forwards}#cena .pop.g{fill:#17783f}#cena .pop.b{fill:#c2321c}@keyframes rise{0%{opacity:0;transform:translateY(6px)}15%{opacity:1}100%{opacity:0;transform:translateY(-44px)}}
 .vez{background:#fff3dc;border:2px solid var(--accent);border-radius:6px;padding:12px;color:#262726}.vez label{font:700 18px var(--fd);letter-spacing:.03em}.vez .note{color:#6a5a3a}
 .roles{display:grid;grid-template-columns:1fr 1fr;gap:12px}.role{border:2px solid var(--line);border-radius:8px;padding:14px;background:var(--surface);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column;gap:6px}.role:hover{border-color:var(--accent);background:#fff8e6}.role b{font:700 22px var(--fd)}
 table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--line)}th{font:600 12px var(--fd);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}td{font-family:var(--fm)}td.l,th.l{text-align:left;font-family:var(--fb)}
@@ -83,7 +86,8 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(56
     <div class="brand"><b>EFEITO <i>CHICOTE</i></b><span>Simulador de cadeia de suprimentos · FM2S</span></div>
     <div class="kpis">
       <div class="kpi"><span class="tag">Semana</span><span class="num" id="k-w">1 de 36</span></div>
-      <div class="kpi"><span class="tag">Seu custo acumulado</span><span class="num" id="k-c">R$ 0,00</span></div>
+      <div class="kpi"><span class="tag">Faturamento</span><span class="num" id="k-f">R$ 0,00</span></div>
+      <div class="kpi"><span class="tag">Lucro acumulado</span><span class="num" id="k-c">R$ 0,00</span></div>
       <div class="kpi"><span class="tag">Dinheiro parado em estoque</span><span class="num" id="k-i">12</span></div>
       <div class="kpi"><span class="tag">Pedidos em atraso</span><span class="num" id="k-b">0</span></div>
     </div>
@@ -102,8 +106,8 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(56
       <div class="pad" style="padding-bottom:10px"><span class="tag">Você comanda</span><h2 id="papel" style="font-size:26px;margin-top:4px"></h2><span class="note" id="papel-sub"></span></div>
       <div class="pad" style="padding-top:0;padding-bottom:6px"><span class="tag">O que aconteceu nesta semana</span></div>
       <ol class="passos" id="passos"></ol>
-      <div class="pad" style="padding-bottom:4px"><div id="meta" class="meta"></div>
-        <table class="custos"><tbody><tr><td class="l">Cada caixa vale</td><td>R$ 20,00</td></tr><tr><td class="l">Caixa parada no estoque</td><td>R$ 0,50 por semana</td></tr><tr><td class="l">Caixa em falta</td><td>R$ 1,00 por semana</td></tr><tr><td class="l" id="c-ped">Cada pedido</td><td>R$ 2,00</td></tr></tbody></table></div>
+      <div class="pad" style="padding-bottom:4px"><div class="lucrobox"><div><span class="tag">Lucro acumulado</span><div class="num" id="spark-v" style="font-size:24px;font-weight:600">R$ 0,00</div></div><div id="spark"></div></div><div id="meta" class="meta"></div>
+        <table class="custos"><tbody><tr><td class="l">Ganho por caixa entregue</td><td>R$ 4,00</td></tr><tr><td class="l">Caixa parada no estoque</td><td>R$ 0,50/semana</td></tr><tr><td class="l">Caixa em falta</td><td>R$ 1,00/semana</td></tr><tr><td class="l" id="c-ped">Cada pedido</td><td>R$ 2,00</td></tr></tbody></table></div>
       <div class="pad stack" style="gap:14px">
         <div><span class="tag">Caixas a caminho de você</span><div class="slots" id="p-pipe"></div><span class="note" id="p-pipe2"></span></div>
         <div class="field vez"><label for="ped" id="ped-lab">4. Sua vez</label>
@@ -131,10 +135,11 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(56
       <span class="tag">Briefing</span>
       <h2 style="font-size:26px;margin-top:6px">Uma cadeia simples, um produto só, e mesmo assim quase todo mundo perde o controle.</h2>
       <p>A Cervejaria Vale Dourado vende um único produto por uma cadeia de quatro elos: <strong>fábrica, distribuidor, atacado e varejo</strong>. Você comanda <strong>a fábrica ou o distribuidor</strong>. Os outros três são conduzidos pelo simulador, que decide como gerentes reais costumam decidir.</p>
-      <p>Toda semana você recebe caixas do seu fornecedor, recebe um pedido do seu cliente, entrega o que tiver e decide <strong>uma única coisa: quanto pedir</strong>. Seu objetivo é o menor custo total em 36 semanas.</p>
+      <p>Toda semana você recebe caixas do seu fornecedor, recebe um pedido do seu cliente, entrega o que tiver e decide <strong>uma única coisa: quanto pedir</strong>. Seu objetivo é o maior lucro acumulado em 36 semanas.</p>
       <h3>Regras</h3>
       <ul>
-        <li>Cada caixa vale <strong>R$ 20,00</strong>. Parada no estoque, custa <strong>R$ 0,50 por semana</strong>. Caixa em atraso custa <strong>R$ 1,00 por semana</strong>, e o pedido não atendido continua valendo até ser entregue.</li>
+        <li>Você ganha <strong>R$ 4,00 por caixa entregue</strong> (a diferença entre o preço de venda e o de compra ou produção). O lucro acumula semana a semana.</li>
+        <li>Parada no estoque, cada caixa custa <strong>R$ 0,50 por semana</strong>. Caixa em atraso custa <strong>R$ 1,00 por semana</strong>, e o pedido não atendido continua valendo até ser entregue.</li>
         <li>Cada pedido ou ordem de produção custa <strong>R$ 2,00</strong>, de qualquer tamanho. Semana sem pedido não paga.</li>
         <li>A diretoria acompanha o dinheiro parado e cobra uma <strong>meta de até 8 caixas em estoque</strong>.</li>
         <li>Um pedido leva <strong>2 semanas</strong> para chegar ao fornecedor, e a entrega leva mais <strong>2 semanas</strong> na estrada. Na fábrica, produzir leva 3 semanas.</li>
@@ -175,13 +180,13 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(56
 <dialog id="dlg0"><div class="pad stack" style="gap:14px">
   <span class="tag">Cervejaria Vale Dourado</span>
   <h2 style="font-size:26px">Você vai comandar um elo desta cadeia por 36 semanas.</h2>
-  <ol style="margin:0;padding-left:20px;line-height:1.5"><li>Toda semana chegam caixas e seu cliente faz um pedido.</li><li>Você entrega o que tiver e decide quantas caixas pedir.</li><li>Caixa parada custa R$ 0,50 por semana. Caixa em falta custa R$ 1,00. Cada pedido custa R$ 2,00. Gaste o mínimo.</li></ol>
+  <ol style="margin:0;padding-left:20px;line-height:1.5"><li>Toda semana chegam caixas e seu cliente faz um pedido.</li><li>Você entrega o que tiver e decide quantas caixas pedir.</li><li>Caixa parada custa R$ 0,50 por semana. Caixa em falta custa R$ 1,00. Cada pedido custa R$ 2,00.</li><li>Você ganha R$ 4,00 por caixa entregue. Termine com o maior lucro.</li></ol>
   <p style="margin:0">O Zeca, seu ajudante, explica cada passo nas primeiras semanas. Onde você quer trabalhar?</p>
   <div class="roles"><button class="role" data-papel="2"><b>Distribuidor</b><span>Compra da fábrica e entrega para o atacado. Bom para começar.</span></button><button class="role" data-papel="3"><b>Fábrica</b><span>Decide quanto produzir. Fica mais longe do consumidor.</span></button></div>
 </div></dialog>
 <div id="toast" role="status"></div>
 <script>(function(root){
-  var T=36, CPED=2, VALOR=20, META=8, NOMES=['Varejo','Atacado','Distribuidor','Fábrica'], TH=0.36, AS=0.26;
+  var T=36, CPED=2, META=8, PV=[32,28,24,20], PC=[28,24,20,16], NOMES=['Varejo','Atacado','Distribuidor','Fábrica'], TH=0.36, AS=0.26;
   function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
   function demanda(S,w){
     if(S.cen==='promo')return (w===9||w===10)?12:4;
@@ -191,7 +196,7 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(56
   function rep(n,v){var a=[];for(var i=0;i<n;i++)a.push(v);return a}
   function novo(papel,cen,lev,seed){
     lev=lev||{};var D=lev.lead?1:2,S={v:1,papel:papel,cen:cen||'classico',lev:{info:!!lev.info,lead:!!lev.lead,pipe:!!lev.pipe},seed:seed||((Math.random()*1e9)|0),w:1,fim:false,auto:false,D:D,st:[],hist:[],meus:[]};
-    for(var i=0;i<4;i++)S.st.push({inv:12,back:0,ship:rep(i===3?D+1:D,4),ord:i>0?rep(D,4):[],exp:4,custo:0});
+    for(var i=0;i<4;i++)S.st.push({inv:12,back:0,ship:rep(i===3?D+1:D,4),ord:i>0?rep(D,4):[],exp:4,custo:0,fat:0,lucro:0});
     fase1(S);return S;
   }
   function sum(a){return a.reduce(function(x,y){return x+y},0)}
@@ -208,8 +213,8 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(56
       var s=S.st[i],need=inc[i]+s.back,out=Math.min(s.inv,need);
       s.inv-=out;s.back=need-out;if(i>0)S.st[i-1].ship.push(out);
       s.exp=TH*(S.lev.info?dem:inc[i])+(1-TH)*s.exp;
-      var c=0.5*s.inv+1*s.back;s.custo+=c;
-      row.e.push({inc:inc[i],rec:rec[i],out:out,inv:s.inv,back:s.back,ord:null,custo:c});
+      var c=0.5*s.inv+1*s.back,fat=out*PV[i],luc=out*(PV[i]-PC[i])-c;s.custo+=c;s.fat+=fat;s.lucro+=luc;
+      row.e.push({inc:inc[i],rec:rec[i],out:out,inv:s.inv,back:s.back,ord:null,custo:c,fat:fat,lucro:luc,acum:s.lucro});
     }
     S.cur=row;
   }
@@ -218,7 +223,7 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(56
     if(S.fim)return;
     for(var i=0;i<4;i++){
       var o=(i===S.papel&&!S.auto&&pedido!=null)?Math.max(0,Math.round(pedido)):bot(S,i);
-      var cp=o>0?CPED:0;S.st[i].custo+=cp;S.cur.e[i].cped=cp;S.cur.e[i].custo+=cp;
+      var cp=o>0?CPED:0;S.st[i].custo+=cp;S.st[i].lucro-=cp;S.cur.e[i].cped=cp;S.cur.e[i].custo+=cp;S.cur.e[i].lucro-=cp;S.cur.e[i].acum=S.st[i].lucro;
       S.cur.e[i].ord=o;if(i<3)S.st[i+1].ord.push(o);else S.st[3].ship.push(o);
     }
     if(!(S.auto||pedido==null))S.meus.push(S.w);
@@ -227,11 +232,11 @@ dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(56
   }
   function variancia(a){if(a.length<2)return 0;var m=sum(a)/a.length;return sum(a.map(function(x){return (x-m)*(x-m)}))/(a.length-1)}
   function resumo(S){
-    var vd=variancia(S.hist.map(function(r){return r.dem})),out={custo:[],chicote:[],total:0,pico:[]};
-    for(var i=0;i<4;i++){var o=S.hist.map(function(r){return r.e[i].ord});out.custo.push(S.st[i].custo);out.total+=S.st[i].custo;out.chicote.push(vd>0?variancia(o)/vd:0);out.pico.push(Math.max.apply(null,o))}
+    var vd=variancia(S.hist.map(function(r){return r.dem})),out={custo:[],chicote:[],total:0,pico:[],lucro:[],fat:[],lucroTotal:0};
+    for(var i=0;i<4;i++){var o=S.hist.map(function(r){return r.e[i].ord});out.custo.push(S.st[i].custo);out.total+=S.st[i].custo;out.lucro.push(S.st[i].lucro||0);out.fat.push(S.st[i].fat||0);out.lucroTotal+=S.st[i].lucro||0;out.chicote.push(vd>0?variancia(o)/vd:0);out.pico.push(Math.max.apply(null,o))}
     return out;
   }
-  root.BG={T:T,CPED:CPED,VALOR:VALOR,META:META,NOMES:NOMES,novo:novo,fase2:fase2,bot:bot,linha:linha,resumo:resumo,demanda:demanda};
+  root.BG={T:T,CPED:CPED,META:META,PV:PV,PC:PC,NOMES:NOMES,novo:novo,fase2:fase2,bot:bot,linha:linha,resumo:resumo,demanda:demanda};
 })(typeof window!=='undefined'?window:globalThis);
 </script>
 <script>(function(){
@@ -240,7 +245,7 @@ var N=BG.NOMES,COR=['#1f6fa8','#17783f','#f39200','#c2321c'],CEN={classico:'clá
 var CLI=['os consumidores','o varejo','o atacado','o distribuidor'],FORN=['o atacado','o distribuidor','a fábrica','a sua linha de produção'];
 function n(x,d){return (+x).toLocaleString('pt-BR',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})}
 function cx(q){return q+(q===1?' caixa':' caixas')}
-function brl(x){return 'R$ '+n(x,2)}
+function brl(x){return (x<0?'− R$ ':'R$ ')+n(Math.abs(x),2)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},2600)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));localStorage.setItem(KR,JSON.stringify(RUNS))}catch(e){}}
@@ -330,27 +335,27 @@ function zeca(){
     return 'Vamos fazer a conta juntos. Você tem '+st.inv+' no estoque'+(st.back?' e deve '+st.back:'')+'. Já estão '+(fab?'em produção ':'na estrada ')+acam+' caixas.'+(!fab&&rec.length?' E os pedidos das duas últimas semanas ('+rec.join(' e ')+') ainda nem saíram de lá.':'')+' Seu cliente tem pedido '+n(med,0)+' por semana, em média. Pergunta que resolve: o que já está a caminho cobre o que vai sair até o próximo pedido chegar?'}
   if(S.w===1)return 'Oi, eu sou o Zeca e vou te acompanhar. Toda semana acontecem 3 coisas, que aparecem numeradas ao lado: chegam caixas, seu cliente faz um pedido e você entrega. Depois é a sua vez: dizer quantas caixas '+(fab?'mandar produzir':'pedir para a fábrica')+'. Está tudo calmo, então '+(fab?'produza':'peça')+' 4 e clique no botão laranja.';
   if(S.w===2)return 'Viu o caminhão e o envelope? O caminhão leva caixas para a direita. O envelope leva o pedido para a esquerda. Atenção: o que você '+(fab?'manda produzir':'pede')+' hoje só chega daqui a '+esp+' semanas. Você decide hoje para um futuro que ainda não viu.';
-  if(S.w===3)return 'Sobre dinheiro: cada caixa vale R$ 20. Parada no estoque, ela custa R$ 0,50 por semana. Caixa que você fica devendo custa R$ 1,00 por semana. E cada '+(fab?'ordem de produção':'pedido')+' custa R$ 2,00, de qualquer tamanho. Ganha quem gasta menos nas 36 semanas.';
-  if(S.w===4)return 'Recado da diretoria: você tem '+st.inv+' caixas paradas, são '+brl(st.inv*BG.VALOR)+' sem render nada. A meta agora é no máximo '+BG.META+' caixas no estoque. O jeito de baixar é '+(fab?'produzir':'pedir')+' menos por algumas semanas. Daqui para frente é com você; se bater dúvida, clique em “Pedir ajuda ao Zeca”.';
+  if(S.w===3)return 'Sobre dinheiro: você '+(fab?'produz':'compra')+' cada caixa por '+brl(BG.PC[p])+' e vende por '+brl(BG.PV[p])+'. Ganha R$ 4,00 em cada caixa entregue. Parada no estoque, a caixa custa R$ 0,50 por semana. Caixa que você fica devendo custa R$ 1,00 por semana. E cada '+(fab?'ordem de produção':'pedido')+' custa R$ 2,00, de qualquer tamanho. O lucro vai acumulando semana a semana, lá no alto da tela.';
+  if(S.w===4)return 'Recado da diretoria: você tem '+st.inv+' caixas paradas, são '+brl(st.inv*BG.PC[S.papel])+' sem render nada. A meta agora é no máximo '+BG.META+' caixas no estoque. O jeito de baixar é '+(fab?'produzir':'pedir')+' menos por algumas semanas. Daqui para frente é com você; se bater dúvida, clique em “Pedir ajuda ao Zeca”.';
   if(e.back>0&&acam>=e.back)return 'Você deve '+cx(e.back)+', mas calma: já tem '+acam+(fab?' em produção':' na estrada')+'. Some o que já está a caminho antes de pedir mais.';
   if(e.back>0)return 'Faltou produto: você deve '+cx(e.back)+' ao seu cliente. A mesma diretoria que pedia estoque baixo agora reclama da falta. Lembre que o que pedir hoje demora '+esp+' semanas. Pedir o dobro agora vira estoque sobrando lá na frente.';
-  if(e.inv>30)return 'Tem '+e.inv+' caixas paradas: '+brl(e.inv*BG.VALOR)+' sem render, mais '+brl(e.inv*0.5)+' de armazenagem por semana. Olhe na tabela o que você pediu semanas atrás: foi isso que chegou agora.';
-  if(e.inv>BG.META&&S.w>4)return 'A diretoria está de olho: a meta é até '+BG.META+' caixas e você tem '+e.inv+'. São '+brl(e.inv*BG.VALOR)+' parados. Dá para '+(fab?'produzir':'pedir')+' menos?';
+  if(e.inv>30)return 'Tem '+e.inv+' caixas paradas: '+brl(e.inv*BG.PC[S.papel])+' sem render, mais '+brl(e.inv*0.5)+' de armazenagem por semana. Olhe na tabela o que você pediu semanas atrás: foi isso que chegou agora.';
+  if(e.inv>BG.META&&S.w>4)return 'A diretoria está de olho: a meta é até '+BG.META+' caixas e você tem '+e.inv+'. São '+brl(e.inv*BG.PC[S.papel])+' parados. Dá para '+(fab?'produzir':'pedir')+' menos?';
   if(last&&e.inc>=last.inc*1.5&&e.inc>4)return 'Opa, seu cliente pediu '+e.inc+' de uma vez. Pense antes de reagir: ele está vendendo mais, ou só está enchendo o estoque dele?';
   if(last&&last.ord>=e.inc*2&&last.ord>8)return 'Você pediu '+last.ord+' na semana passada e seu cliente pediu '+e.inc+' agora. Quem está antes de você na cadeia só enxerga o seu número.';
   return ['Siga os 3 passos ao lado e decida. Na dúvida, peça ajuda.','O que está a caminho também conta: é estoque que ainda não chegou.','Pedido não é o mesmo que consumo. Às vezes o cliente pede mais só para repor o estoque dele.','Seu fornecedor só entrega o que tem. Se ele atrasar, pedir em dobro não acelera nada.'][S.w%4];
 }
 function render(){
   var p=S.papel,fab=p===3,st=S.st[p],e=S.cur?S.cur.e[p]:(S.hist.length?S.hist[S.hist.length-1].e[p]:null);
-  $('k-w').textContent=S.fim?'encerrada':(S.w+' de '+BG.T);$('k-c').textContent=brl(st.custo);$('k-i').textContent=brl(st.inv*BG.VALOR);var kb=$('k-b');kb.textContent=st.back;kb.className='num '+(st.back?'neg':'');
+  $('k-w').textContent=S.fim?'encerrada':(S.w+' de '+BG.T);$('k-f').textContent=brl(st.fat||0);var kc=$('k-c');kc.textContent=brl(st.lucro||0);kc.className='num '+((st.lucro||0)<0?'neg':'pos');$('k-i').textContent=brl(st.inv*BG.PC[S.papel]);var kb=$('k-b');kb.textContent=st.back;kb.className='num '+(st.back?'neg':'');
   $('estado').textContent=S.fim?'Rodada encerrada · toda a cadeia visível':('Semana '+S.w+' de '+BG.T);
   $('papel').textContent=N[p];$('papel-sub').textContent=fab?'Você produz e entrega para o distribuidor.':'Você compra da fábrica e entrega para o atacado.';
   var cli=fab?'O distribuidor':'O atacado',forn=fab?'da sua linha de produção':'da fábrica',h='';
   if(e){h+='<li><b>1</b><div><strong>Chegaram '+e.rec+' caixas</strong> '+forn+'.</div></li>';
     h+='<li><b>2</b><div><strong>'+cli+' pediu '+e.inc+'.</strong> Você entregou '+e.out+'.'+(e.back?' <span class="neg">Ficou devendo '+e.back+'.</span>':'')+'</div></li>';
-    h+='<li><b>3</b><div><strong>Sobrou '+e.inv+' no estoque.</strong> Custo da semana: estoque '+brl(e.inv*0.5)+(e.back?' + falta <span class="neg">'+brl(e.back)+'</span>':'')+'.</div></li>'}
+    var mg=e.out*(BG.PV[p]-BG.PC[p]),lw=mg-e.inv*0.5-e.back;h+='<li><b>3</b><div><strong>Sobrou '+e.inv+' no estoque.</strong><table class="dre"><tr><td>Faturamento ('+e.out+' × '+brl(BG.PV[p])+')</td><td>'+brl(e.out*BG.PV[p])+'</td></tr><tr><td>Ganho nas caixas entregues</td><td>'+brl(mg)+'</td></tr><tr><td>Custo do estoque</td><td>'+brl(-e.inv*0.5)+'</td></tr>'+(e.back?'<tr class="neg"><td>Custo da falta</td><td>'+brl(-e.back)+'</td></tr>':'')+'<tr class="tot '+(lw<0?'neg':'pos')+'"><td>Lucro da semana</td><td>'+brl(lw)+'</td></tr></table><span class="note">Antes do custo do pedido que você fizer agora.</span></div></li>'}
   $('passos').innerHTML=h;
-  var ok=st.inv<=BG.META;$('meta').innerHTML='<span class="chip '+(st.back?'bad':ok?'ok':'warn')+'">'+(st.back?'Em falta: você deve '+cx(st.back):ok?'Dentro da meta de estoque':'Acima da meta: '+cx(st.inv-BG.META)+' a mais')+'</span><span class="note">Meta da diretoria: até '+BG.META+' caixas. Dinheiro parado agora: <b>'+brl(st.inv*BG.VALOR)+'</b>.</span>';
+  var ok=st.inv<=BG.META;$('meta').innerHTML='<span class="chip '+(st.back?'bad':ok?'ok':'warn')+'">'+(st.back?'Em falta: você deve '+cx(st.back):ok?'Dentro da meta de estoque':'Acima da meta: '+cx(st.inv-BG.META)+' a mais')+'</span><span class="note">Meta da diretoria: até '+BG.META+' caixas. Dinheiro parado agora: <b>'+brl(st.inv*BG.PC[S.papel])+'</b>.</span>';
   $('c-ped').textContent=fab?'Cada ordem de produção':'Cada pedido à fábrica';
   var sh=st.ship;$('p-pipe').innerHTML=sh.map(function(v,k){return '<span class="slot"><small>'+(k===0?'próxima semana':k===1?'em 2 semanas':'em 3 semanas')+'</small>'+v+'</span>'}).join('');
   $('p-pipe2').textContent=fab?'É o que já está sendo produzido.':'É o que a fábrica já despachou. Pedidos mais novos ainda não aparecem aqui.';
@@ -358,12 +363,20 @@ function render(){
   $('go').textContent=fab?'Produzir e avançar':'Pedir e avançar';
   $('go').disabled=$('auto').disabled=$('ped').disabled=$('help').disabled=!!S.fim;$('ped-note').textContent=S.fim?'Rodada encerrada. Comece uma nova para testar outra estratégia.':(S.w===BG.T?'Esta é a última semana.':'Custa R$ 2,00 e chega daqui a '+(fab?3:4)+' semanas. Zero não custa nada.');
   $('mentor').textContent=zeca();
-  var rows=S.hist.slice().reverse(),t='<table><thead><tr><th>Sem.</th><th title="Pedido recebido do cliente">Pedido</th><th title="Caixas que chegaram">Chegou</th><th title="Caixas entregues">Saiu</th><th title="Estoque">Est.</th><th title="Em atraso">Atr.</th><th title="Pedido que você fez">Pedi</th></tr></thead><tbody>';
-  rows.forEach(function(r){var x=r.e[p];t+='<tr><td>'+r.w+'</td><td>'+x.inc+'</td><td>'+x.rec+'</td><td>'+x.out+'</td><td>'+x.inv+'</td><td'+(x.back?' class="neg"':'')+'>'+x.back+'</td><td>'+x.ord+'</td></tr>'});
+  var rows=S.hist.slice().reverse(),t='<table><thead><tr><th>Sem.</th><th title="Pedido recebido do cliente">Pedido</th><th title="Caixas que chegaram">Chegou</th><th title="Caixas entregues">Saiu</th><th title="Estoque">Est.</th><th title="Em atraso">Atr.</th><th title="Pedido que você fez">Pedi</th><th title="Lucro da semana">Lucro</th></tr></thead><tbody>';
+  rows.forEach(function(r){var x=r.e[p];t+='<tr><td>'+r.w+'</td><td>'+x.inc+'</td><td>'+x.rec+'</td><td>'+x.out+'</td><td>'+x.inv+'</td><td'+(x.back?' class="neg"':'')+'>'+x.back+'</td><td>'+x.ord+'</td><td class="'+(x.lucro<0?'neg':'')+'">'+n(x.lucro,0)+'</td></tr>'});
   $('meu-hist').innerHTML=rows.length?t+'</tbody></table>':'';
   $('m-rod').textContent=(S.fim?'Rodada encerrada':'Semana '+S.w+' de '+BG.T)+'. Você comanda: '+N[p]+'. Cenário: '+CEN[S.cen]+'. Contramedidas: '+levTxt(S.lev)+'.';
-  scene();
+  spark();scene();
 }
+function spark(){
+  var v=[0].concat(S.hist.map(function(r){return r.e[S.papel].acum})),W=330,H=74,lo=Math.min(0,Math.min.apply(null,v)),hi=Math.max(40,Math.max.apply(null,v)),x=function(i){return 4+i/BG.T*(W-8)},y=function(q){return H-6-(q-lo)/(hi-lo)*(H-12)};
+  var last=v[v.length-1],c=last<0?'var(--bad)':'var(--good)',pp=v.map(function(q,i){return f1(x(i))+','+f1(y(q))}).join(' ');
+  $('spark').innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Lucro acumulado por semana"><line x1="4" x2="'+(W-4)+'" y1="'+f1(y(0))+'" y2="'+f1(y(0))+'" stroke="var(--ink-3)" stroke-dasharray="3 3"/><polygon points="'+f1(x(0))+','+f1(y(0))+' '+pp+' '+f1(x(v.length-1))+','+f1(y(0))+'" fill="'+c+'" opacity=".14"/><polyline points="'+pp+'" fill="none" stroke="'+c+'" stroke-width="2.4" stroke-linejoin="round"/><circle cx="'+f1(x(v.length-1))+'" cy="'+f1(y(last))+'" r="4" fill="'+c+'"/></svg>';
+  $('spark-v').textContent=brl(last);$('spark-v').className='num '+(last<0?'neg':'pos');
+}
+function popLucro(row){var g=$('mv');if(!g)return;var e=row.e[S.papel],p=P(SX[S.papel]+BW/2,3.4,1.2),t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',f1(p[0]));t.setAttribute('y',f1(p[1]));t.setAttribute('text-anchor','middle');t.setAttribute('class','pop '+(e.lucro<0?'b':'g'));t.textContent=(e.lucro<0?'− R$ ':'+ R$ ')+n(Math.abs(e.lucro),2);g.appendChild(t);setTimeout(function(){t.remove()},2300)}
 /* ---------- análise ---------- */
 function chart(title,series,zero){
   var W=620,H=320,m={l:44,r:14,t:34,b:30},all=[].concat.apply([],series.map(function(s){return s.v})),lo=Math.min(0,Math.min.apply(null,all)),hi=Math.max(8,Math.max.apply(null,all)),nn=series[0].v.length;
@@ -379,25 +392,25 @@ function analise(){
     $('a-msg').innerHTML='<h2 style="font-size:22px">A cadeia inteira aparece quando a rodada terminar.</h2><p style="margin:8px 0 0">Por enquanto você só vê o seu elo, como um gerente de verdade. Termine as '+BG.T+' semanas e volte aqui.</p>';$('a-res').hidden=true;
     $('a-charts').innerHTML=h.length>1?chart('Seu elo: pedidos recebidos e pedidos feitos',[{n:'Pedido que você recebeu',c:'#575756',v:h.map(function(r){return r.e[p].inc})},{n:'Pedido que você fez',c:COR[p],v:h.map(function(r){return r.e[p].ord})}])+chart('Seu elo: estoque menos atraso',[{n:N[p],c:COR[p],v:h.map(function(r){return r.e[p].inv-r.e[p].back})}],true):'';
   }else{
-    var R=BG.resumo(S),t='<div class="pad" style="padding-bottom:6px"><h2 style="font-size:22px">Resultado da rodada</h2><p class="note" style="margin:4px 0 0">Amplificação = variância dos pedidos do elo dividida pela variância da demanda do consumidor. Acima de 1, o elo aumentou a oscilação que recebeu.</p></div><table><thead><tr><th class="l">Elo</th><th>Custo</th><th>Maior pedido</th><th>Amplificação</th></tr></thead><tbody>';
-    for(var i=0;i<4;i++)t+='<tr><td class="l">'+N[i]+(i===p?' (você)':'')+'</td><td>'+brl(R.custo[i])+'</td><td>'+R.pico[i]+'</td><td>'+n(R.chicote[i],1)+'</td></tr>';
-    t+='<tr><td class="l"><b>Cadeia inteira</b></td><td><b>'+brl(R.total)+'</b></td><td></td><td></td></tr></tbody></table>';$('a-res').innerHTML=t;$('a-res').hidden=false;
-    $('a-msg').innerHTML='<div class="prose"><h2 style="font-size:22px">O consumidor mudou pouco. A cadeia mudou muito.</h2><p>Compare a linha tracejada com as outras no primeiro gráfico. A demanda do consumidor teve, no máximo, uma mudança simples. Os pedidos foram crescendo a cada elo até chegar à fábrica. Isso é o <strong>efeito chicote</strong>.</p><p>Ninguém na cadeia errou de propósito. Cada elo viu só o pedido do seu cliente, tratou esse número como se fosse demanda, e esqueceu de contar o que já tinha pedido e ainda estava na estrada. Com quatro semanas de espera, a correção chega tarde e chega em dobro.</p><p>Repare também na meta da diretoria. Baixar o estoque parecia a decisão certa enquanto a venda estava parada: dinheiro parado some do balanço na hora. A conta chegou semanas depois, como falta, e a falta custa o dobro do estoque. Meta de um indicador só, sem olhar o prazo de reposição, empurra o gerente para esse erro.</p><h3>Para o seu relatório</h3><ol><li>Quanto você economizou baixando o estoque nas primeiras semanas, e quanto pagou de falta depois?</li><li>Em que semana o seu estoque zerou, e quanto você pediu nas três semanas seguintes?</li><li>Quanto do seu pedido era demanda do cliente e quanto era ajuste de estoque?</li><li>Qual elo teve a maior amplificação? Por que não foi o varejo?</li><li>Rode de novo com uma contramedida por vez. Qual reduziu mais o custo da cadeia, e por quê?</li></ol><p class="note">Referência: com os quatro elos no automático, sem contramedidas, o cenário clássico fecha em cerca de R$ 2.900 para a cadeia, com pico de 32 caixas no pedido da fábrica.</p></div>';
+    var R=BG.resumo(S),t='<div class="pad" style="padding-bottom:6px"><h2 style="font-size:22px">Resultado da rodada</h2><p class="note" style="margin:4px 0 0">Amplificação = variância dos pedidos do elo dividida pela variância da demanda do consumidor. Acima de 1, o elo aumentou a oscilação que recebeu.</p></div><table><thead><tr><th class="l">Elo</th><th>Faturamento</th><th>Lucro</th><th>Custo de estoque, falta e pedidos</th><th>Maior pedido</th><th>Amplificação</th></tr></thead><tbody>';
+    for(var i=0;i<4;i++)t+='<tr><td class="l">'+N[i]+(i===p?' (você)':'')+'</td><td>'+brl(R.fat[i])+'</td><td class="'+(R.lucro[i]<0?'neg':'pos')+'">'+brl(R.lucro[i])+'</td><td>'+brl(R.custo[i])+'</td><td>'+R.pico[i]+'</td><td>'+n(R.chicote[i],1)+'</td></tr>';
+    t+='<tr><td class="l"><b>Cadeia inteira</b></td><td></td><td><b>'+brl(R.lucroTotal)+'</b></td><td><b>'+brl(R.total)+'</b></td><td></td><td></td></tr></tbody></table>';$('a-res').innerHTML=t;$('a-res').hidden=false;
+    $('a-msg').innerHTML='<div class="prose"><h2 style="font-size:22px">O consumidor mudou pouco. A cadeia mudou muito.</h2><p>Compare a linha tracejada com as outras no primeiro gráfico. A demanda do consumidor teve, no máximo, uma mudança simples. Os pedidos foram crescendo a cada elo até chegar à fábrica. Isso é o <strong>efeito chicote</strong>.</p><p>Ninguém na cadeia errou de propósito. Cada elo viu só o pedido do seu cliente, tratou esse número como se fosse demanda, e esqueceu de contar o que já tinha pedido e ainda estava na estrada. Com quatro semanas de espera, a correção chega tarde e chega em dobro.</p><p>Repare também na meta da diretoria. Baixar o estoque parecia a decisão certa enquanto a venda estava parada: dinheiro parado some do balanço na hora. A conta chegou semanas depois, como falta, e a falta custa o dobro do estoque. Meta de um indicador só, sem olhar o prazo de reposição, empurra o gerente para esse erro.</p><h3>Para o seu relatório</h3><ol><li>Quanto você economizou baixando o estoque nas primeiras semanas, e quanto pagou de falta depois?</li><li>Em que semana o seu estoque zerou, e quanto você pediu nas três semanas seguintes?</li><li>Quanto do seu pedido era demanda do cliente e quanto era ajuste de estoque?</li><li>Qual elo teve a maior amplificação? Por que não foi o varejo?</li><li>Rode de novo com uma contramedida por vez. Qual reduziu mais o custo da cadeia, e por quê?</li></ol><p class="note">Referência: com os quatro elos no automático, sem contramedidas, o cenário clássico fecha em cerca de R$ 2.900 para a cadeia, com pico de 32 caixas no pedido da fábrica. Nesse mesmo cenário o distribuidor termina com lucro de R$ 75 e a fábrica com R$ 576.</p></div>';
     var S4=function(f){return [0,1,2,3].map(function(i){return {n:N[i],c:COR[i],v:h.map(function(r){return f(r.e[i])})}})};
-    $('a-charts').innerHTML=chart('Pedidos feitos por elo',S4(function(e){return e.ord}).concat([dem]))+chart('Estoque menos atraso, por elo',S4(function(e){return e.inv-e.back}),true);
+    $('a-charts').innerHTML=chart('Pedidos feitos por elo',S4(function(e){return e.ord}).concat([dem]))+chart('Estoque menos atraso, por elo',S4(function(e){return e.inv-e.back}),true)+chart('Lucro acumulado, por elo (R$)',S4(function(e){return e.acum}),true);
   }
   var r='<div class="pad" style="padding-bottom:6px"><h2 style="font-size:22px">Rodadas concluídas</h2></div>';
-  if(RUNS.length){r+='<div style="overflow:auto"><table><thead><tr><th>#</th><th class="l">Você</th><th class="l">Cenário</th><th class="l">Contramedidas</th><th>Semanas decididas por você</th><th>Seu custo</th><th>Custo da cadeia</th><th>Amplificação na fábrica</th></tr></thead><tbody>';
-    RUNS.forEach(function(x,i){r+='<tr><td>'+(i+1)+'</td><td class="l">'+N[x.papel]+'</td><td class="l">'+CEN[x.cen]+'</td><td class="l">'+esc(levTxt(x.lev))+'</td><td>'+x.meus+'</td><td>'+brl(x.meu)+'</td><td>'+brl(x.total)+'</td><td>'+n(x.fab,1)+'</td></tr>'});
+  if(RUNS.length){r+='<div style="overflow:auto"><table><thead><tr><th>#</th><th class="l">Você</th><th class="l">Cenário</th><th class="l">Contramedidas</th><th>Semanas decididas por você</th><th>Seu lucro</th><th>Seu custo</th><th>Custo da cadeia</th><th>Amplificação na fábrica</th></tr></thead><tbody>';
+    RUNS.forEach(function(x,i){r+='<tr><td>'+(i+1)+'</td><td class="l">'+N[x.papel]+'</td><td class="l">'+CEN[x.cen]+'</td><td class="l">'+esc(levTxt(x.lev))+'</td><td>'+x.meus+'</td><td>'+(x.lucro==null?'—':brl(x.lucro))+'</td><td>'+brl(x.meu)+'</td><td>'+brl(x.total)+'</td><td>'+n(x.fab,1)+'</td></tr>'});
     r+='</tbody></table></div><div class="pad"><button class="btn small" id="clr">Limpar a lista</button></div>'}
   else r+='<p class="pad note" style="margin:0;padding-top:0">Nenhuma rodada concluída ainda. Cada rodada que você terminar entra aqui, para comparar antes e depois.</p>';
   $('a-runs').innerHTML=r;var c=$('clr');if(c)c.addEventListener('click',function(){RUNS=[];save();analise()});
 }
-function fim(){var R=BG.resumo(S);RUNS.push({papel:S.papel,cen:S.cen,lev:S.lev,meus:S.meus.length,meu:R.custo[S.papel],total:R.total,fab:R.chicote[3]});save();toast('Rodada encerrada. A Análise mostra a cadeia inteira.')}
+function fim(){var R=BG.resumo(S);RUNS.push({papel:S.papel,cen:S.cen,lev:S.lev,meus:S.meus.length,meu:R.custo[S.papel],lucro:R.lucro[S.papel],total:R.total,fab:R.chicote[3]});save();toast('Rodada encerrada. A Análise mostra a cadeia inteira.')}
 function csv(){
   if(!S.fim){toast('Os dados completos ficam disponíveis quando a rodada terminar.');return}
-  var head=['Semana','Demanda do consumidor'];N.forEach(function(nm){['pedido recebido','caixas recebidas','caixas entregues','estoque','atraso','pedido feito','custo'].forEach(function(c){head.push(nm+' - '+c)})});
-  var L=[head.join(';')];S.hist.forEach(function(r){var a=[r.w,r.dem];r.e.forEach(function(e){a.push(e.inc,e.rec,e.out,e.inv,e.back,e.ord,String(e.custo).replace('.',','))});L.push(a.join(';'))});
+  var head=['Semana','Demanda do consumidor'];N.forEach(function(nm){['pedido recebido','caixas recebidas','caixas entregues','estoque','atraso','pedido feito','custo','faturamento','lucro da semana','lucro acumulado'].forEach(function(c){head.push(nm+' - '+c)})});
+  var L=[head.join(';')];S.hist.forEach(function(r){var a=[r.w,r.dem];r.e.forEach(function(e){a.push(e.inc,e.rec,e.out,e.inv,e.back,e.ord,String(e.custo).replace('.',','),e.fat,String(e.lucro).replace('.',','),String(e.acum).replace('.',','))});L.push(a.join(';'))});
   try{var u=URL.createObjectURL(new Blob(['﻿'+L.join('\r\n')],{type:'text/csv;charset=utf-8'})),l=document.createElement('a');l.href=u;l.download='efeito-chicote-rodada.csv';document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},2000);toast('Arquivo baixado.')}catch(e){toast('Não foi possível baixar neste navegador.')}
 }
 var VIEWS=['jogo','analise','missao'];
@@ -406,7 +419,7 @@ function route(){var h=(location.hash||'').replace('#','');if(VIEWS.indexOf(h)<0
 function start(){
   var tem=load0();
   $('go').addEventListener('click',function(){if(S.fim||busy)return;var v=Math.max(0,Math.min(999,Math.round(parseFloat($('ped').value)||0)));$('ped').value=v;ajuda=false;
-    BG.fase2(S,v);var row=S.hist[S.hist.length-1];if(S.fim)fim();save();render();animar(row);busy=true;setTimeout(function(){busy=false},450)});
+    BG.fase2(S,v);var row=S.hist[S.hist.length-1];if(S.fim)fim();save();render();animar(row);popLucro(row);busy=true;setTimeout(function(){busy=false},450)});
   $('ped').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('go').click()}});
   $('help').addEventListener('click',function(){ajuda=true;$('mentor').textContent=zeca()});
   $('auto').addEventListener('click',function(){if(S.fim)return;S.auto=true;while(!S.fim)BG.fase2(S,null);fim();save();render();location.hash='#analise'});
