@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Efeito Chicote · simulador de cadeia de suprimentos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{--paper:#eeefee;--surface:#fff;--sunk:#e4e6e5;--ink:#262726;--ink-2:#575756;--ink-3:#6f716f;--line:#c9cccb;--accent:#f39200;--accent-ink:#9a5a00;--good:#17783f;--bad:#c2321c;
+ --fd:"Barlow Condensed","Arial Narrow",sans-serif;--fb:"Barlow","Segoe UI",system-ui,sans-serif;--fm:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.5 var(--fb)}
+h1,h2,h3{font-family:var(--fd);font-weight:600;letter-spacing:.02em;margin:0;line-height:1.15}
+a{color:var(--accent-ink)}
+header{background:var(--surface);border-bottom:1px solid var(--line)}
+.top{max-width:1320px;margin:0 auto;padding:14px 20px 8px;display:flex;flex-wrap:wrap;gap:10px 28px;align-items:flex-end;justify-content:space-between}
+.brand b{font:700 30px/1 var(--fd);letter-spacing:.06em}.brand b i{font-style:normal;color:var(--accent)}
+.brand span{display:block;font:500 13px var(--fd);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.kpis{display:flex;flex-wrap:wrap;gap:6px 26px}.kpi{display:flex;flex-direction:column;gap:3px}
+.tag{font:600 12px/1 var(--fd);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.num{font-family:var(--fm);font-variant-numeric:tabular-nums}.kpi .num{font-size:17px;font-weight:600}
+.neg{color:var(--bad)}.pos{color:var(--good)}
+nav{max-width:1320px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow:auto}
+nav a{font:600 17px var(--fd);letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:var(--ink-2);padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap}
+nav a[aria-current]{color:var(--ink);border-color:var(--accent)}
+.wrap{max-width:1320px;margin:0 auto;padding:20px}
+.view{display:none}.view.on{display:block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 2px rgba(30,32,30,.08),0 6px 18px rgba(30,32,30,.06);overflow:hidden}
+.pad{padding:16px}
+.game{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:20px;align-items:start}
+@media (max-width:1040px){.game{grid-template-columns:minmax(0,1fr)}}
+.tb{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}.tb h2{font-size:21px}
+#cena{display:block;width:100%;height:auto}
+#cena .tag-bg{fill:#fffdf5;stroke:#262726;stroke-width:1.6}
+#cena .lbl{font:700 13px var(--fd);letter-spacing:.08em;fill:#262726;text-transform:uppercase}
+#cena .ro{font:600 12.5px var(--fm);fill:#262726}
+#cena .ro.bad{fill:#c2321c}
+#cena .pill{fill:#eef0ef;stroke:#262726;stroke-width:1.3}#cena .pill.on{fill:#fffdf5;stroke:#f39200;stroke-width:2}
+#cena .voce{font:700 12px var(--fd);letter-spacing:.14em;fill:#fff}
+#cena .smoke{fill:#f1f3f4;opacity:0;transform-box:fill-box;transform-origin:center;animation:puff 2.6s linear infinite}
+#cena .smoke.s1{animation-delay:.9s}#cena .smoke.s2{animation-delay:1.8s}
+#cena .cloud{animation:drift 70s linear infinite alternate}
+#cena .mv{pointer-events:none}
+@keyframes puff{0%{opacity:0;transform:translate(0,0) scale(.5)}15%{opacity:.85}100%{opacity:0;transform:translate(22px,-60px) scale(2.1)}}
+@keyframes drift{to{transform:translateX(70px)}}
+@media (prefers-reduced-motion:reduce){#cena .smoke,#cena .cloud{animation:none}}
+.strip{display:flex;gap:12px;align-items:flex-start;padding:10px 16px;background:#fff8e6;color:#3a2d10;border-top:1px solid var(--line);font-size:14.5px;line-height:1.4}
+.strip b.t{flex:none;font:700 13px/1.5 var(--fd);letter-spacing:.12em;text-transform:uppercase;background:#262726;color:#ffd54a;padding:2px 8px;border-radius:3px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tile{background:var(--surface);padding:10px 16px;display:flex;flex-direction:column;gap:4px}.tile .num{font-size:21px;font-weight:600}.tile small{color:var(--ink-3);font-size:12.5px}
+.btn{font:600 16px/1 var(--fd);letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--ink-2);background:var(--surface);color:var(--ink);padding:11px 16px;border-radius:4px;cursor:pointer}
+.btn:hover{background:var(--sunk)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#1d1300;font-size:18px;padding:13px 18px}.btn.small{font-size:14px;padding:8px 11px}.btn:disabled{opacity:.5;cursor:not-allowed}
+input[type=number],select{font:600 18px var(--fm);padding:9px 10px;border:1px solid var(--ink-2);border-radius:4px;background:var(--surface);color:var(--ink)}
+.order{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.order input{width:96px;text-align:center}
+.note{font-size:13px;color:var(--ink-3)}
+.passos{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.passos li{display:flex;gap:12px;align-items:flex-start;padding:10px 16px;border-bottom:1px solid var(--line);font-size:15px;line-height:1.4}.passos li:last-child{border-bottom:0}
+.passos li>b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font:700 16px/28px var(--fd);text-align:center}
+.slots{display:flex;gap:8px;margin:6px 0 4px}.slot{flex:1;border:1px solid var(--line);border-radius:5px;padding:6px 8px;font:600 20px var(--fm);background:var(--sunk);display:flex;flex-direction:column;gap:2px}.slot small{font:600 11px var(--fd);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.vez{background:#fff3dc;border:2px solid var(--accent);border-radius:6px;padding:12px;color:#262726}.vez label{font:700 18px var(--fd);letter-spacing:.03em}.vez .note{color:#6a5a3a}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:12px}.role{border:2px solid var(--line);border-radius:8px;padding:14px;background:var(--surface);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column;gap:6px}.role:hover{border-color:var(--accent);background:#fff8e6}.role b{font:700 22px var(--fd)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--line)}th{font:600 12px var(--fd);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}td{font-family:var(--fm)}td.l,th.l{text-align:left;font-family:var(--fb)}
+.scroll{max-height:250px;overflow:auto}#meu-hist th,#meu-hist td{padding:5px 6px;font-size:12.5px}#meu-hist th{font-size:11px}
+.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}@media (max-width:900px){.charts{grid-template-columns:minmax(0,1fr)}}
+.charts svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;padding:0 16px 12px;font-size:13px}.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
+.prose{max-width:74ch}.prose h3{font-size:20px;margin:18px 0 6px}.prose p,.prose li{margin:0 0 8px}
+.stack{display:flex;flex-direction:column;gap:20px}
+.cols2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}@media (max-width:900px){.cols2{grid-template-columns:minmax(0,1fr)}}
+dialog{border:1px solid var(--line);border-radius:8px;padding:0;max-width:min(560px,92vw);color:var(--ink);background:var(--surface)}dialog::backdrop{background:rgba(20,22,20,.5)}
+.field{display:flex;flex-direction:column;gap:5px}.field label,.lab{font-weight:600;font-size:14px}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14.5px}.chk input{margin-top:4px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#262726;color:#fff;padding:10px 16px;border-radius:6px;display:none;z-index:9}
+.big{font:600 15px var(--fm)}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand"><b>EFEITO <i>CHICOTE</i></b><span>Simulador de cadeia de suprimentos · FM2S</span></div>
+    <div class="kpis">
+      <div class="kpi"><span class="tag">Semana</span><span class="num" id="k-w">1 de 36</span></div>
+      <div class="kpi"><span class="tag">Seu custo acumulado</span><span class="num" id="k-c">R$ 0,00</span></div>
+      <div class="kpi"><span class="tag">Seu estoque</span><span class="num" id="k-i">12</span></div>
+      <div class="kpi"><span class="tag">Pedidos em atraso</span><span class="num" id="k-b">0</span></div>
+    </div>
+  </div>
+  <nav aria-label="Seções"><a href="#jogo">Cadeia</a><a href="#analise">Análise</a><a href="#missao">Missão</a></nav>
+</header>
+<div class="wrap">
+<section class="view" id="v-jogo">
+  <div class="game">
+    <div class="card">
+      <div class="tb"><h2>Cervejaria Vale Dourado e sua cadeia</h2><span class="tag" id="estado"></span></div>
+      <svg id="cena" viewBox="0 0 960 336" role="img" aria-label="Cadeia de suprimentos: fábrica, distribuidor, atacado e varejo, com caminhões levando caixas e pedidos voltando"></svg>
+      <div class="strip"><svg viewBox="0 0 64 64" width="54" height="54" style="flex:none" aria-hidden="true"><circle cx="32" cy="34" r="18" fill="#d9a877"/><path d="M12 30a20 18 0 0 1 40 0z" fill="#f39200"/><rect x="10" y="28" width="44" height="5" rx="2.5" fill="#c97700"/><circle cx="25" cy="38" r="2.4" fill="#262726"/><circle cx="39" cy="38" r="2.4" fill="#262726"/><path d="M24 45q8 7 16 0" fill="none" stroke="#262726" stroke-width="2.4" stroke-linecap="round"/></svg><div><b class="t" style="display:inline-block;margin-bottom:5px">Zeca, seu ajudante</b><div id="mentor" style="font-size:15.5px"></div></div></div>
+    </div>
+    <aside class="card">
+      <div class="pad" style="padding-bottom:10px"><span class="tag">Você comanda</span><h2 id="papel" style="font-size:26px;margin-top:4px"></h2><span class="note" id="papel-sub"></span></div>
+      <div class="pad" style="padding-top:0;padding-bottom:6px"><span class="tag">O que aconteceu nesta semana</span></div>
+      <ol class="passos" id="passos"></ol>
+      <div class="pad stack" style="gap:14px">
+        <div><span class="tag">Caixas a caminho de você</span><div class="slots" id="p-pipe"></div><span class="note" id="p-pipe2"></span></div>
+        <div class="field vez"><label for="ped" id="ped-lab">4. Sua vez</label>
+          <div class="order"><input type="number" id="ped" min="0" max="999" step="1" value="4"><button class="btn primary" id="go">Pedir e avançar</button></div>
+          <span class="note" id="ped-note"></span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn small" id="help">Pedir ajuda ao Zeca</button><button class="btn small" id="auto">Rodar o resto no automático</button><button class="btn small" id="new">Nova rodada</button></div>
+      </div>
+      <div class="scroll" id="meu-hist"></div>
+    </aside>
+  </div>
+</section>
+
+<section class="view" id="v-analise">
+  <div class="stack">
+    <div class="card pad" id="a-msg"></div>
+    <div class="card" id="a-res" hidden></div>
+    <div class="charts" id="a-charts"></div>
+    <div class="card" id="a-runs"></div>
+  </div>
+</section>
+
+<section class="view" id="v-missao">
+  <div class="cols2">
+    <div class="card pad prose">
+      <span class="tag">Briefing</span>
+      <h2 style="font-size:26px;margin-top:6px">Uma cadeia simples, um produto só, e mesmo assim quase todo mundo perde o controle.</h2>
+      <p>A Cervejaria Vale Dourado vende um único produto por uma cadeia de quatro elos: <strong>fábrica, distribuidor, atacado e varejo</strong>. Você comanda <strong>a fábrica ou o distribuidor</strong>. Os outros três são conduzidos pelo simulador, que decide como gerentes reais costumam decidir.</p>
+      <p>Toda semana você recebe caixas do seu fornecedor, recebe um pedido do seu cliente, entrega o que tiver e decide <strong>uma única coisa: quanto pedir</strong>. Seu objetivo é o menor custo total em 36 semanas.</p>
+      <h3>Regras</h3>
+      <ul>
+        <li>Caixa parada no estoque custa <strong>R$ 0,50 por semana</strong>. Caixa em atraso custa <strong>R$ 1,00 por semana</strong>, e o pedido não atendido continua valendo até ser entregue.</li>
+        <li>Um pedido leva <strong>2 semanas</strong> para chegar ao fornecedor, e a entrega leva mais <strong>2 semanas</strong> na estrada. Na fábrica, produzir leva 3 semanas.</li>
+        <li>Você só enxerga o seu elo: seu estoque, os pedidos que chegam e o que está a caminho. Não há telefone para o resto da cadeia.</li>
+        <li>O fornecedor só entrega o que tem. Se ele estiver sem estoque, seu pedido entra na fila dele.</li>
+      </ul>
+      <h3>Como usar no projeto</h3>
+      <ol>
+        <li><strong>Rodada 1:</strong> jogue as 36 semanas decidindo por conta própria. Não leia a Análise antes.</li>
+        <li><strong>Meça:</strong> na Análise, veja os pedidos de cada elo contra a demanda do consumidor e o índice de amplificação.</li>
+        <li><strong>Analise:</strong> o que fez os pedidos crescerem a cada elo? Ninguém mudou a regra do jogo no meio.</li>
+        <li><strong>Melhore:</strong> comece nova rodada ligando uma contramedida por vez e compare na tabela de rodadas.</li>
+      </ol>
+      <h3>De onde vem este jogo</h3>
+      <p>A dinâmica segue o jogo de distribuição criado no MIT nos anos 1960, a partir do trabalho de Jay Forrester, e estudado por John Sterman em 1989. As contramedidas seguem as causas do efeito chicote descritas por Lee, Padmanabhan e Whang em 1997, na Sloan Management Review. O cenário, os textos e os personagens desta versão são da FM2S.</p>
+    </div>
+    <div class="stack">
+      <div class="card pad"><span class="tag">Rodada atual</span><p id="m-rod" style="margin:8px 0 12px"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="new2">Nova rodada</button><button class="btn" id="csv">Baixar dados (CSV)</button></div><p class="note" style="margin:10px 0 0">O progresso fica salvo neste navegador.</p></div>
+      <div class="card pad"><span class="tag">Contramedidas disponíveis</span>
+        <p style="margin:8px 0 6px"><strong>Informação compartilhada.</strong> Todos os elos passam a enxergar a venda ao consumidor final e a usar esse número para prever.</p>
+        <p style="margin:0 0 6px"><strong>Lead time menor.</strong> Pedido e entrega passam a levar 1 semana cada.</p>
+        <p style="margin:0"><strong>Reposição que conta o que está a caminho.</strong> Os elos simulados passam a descontar do pedido tudo o que já pediram e ainda não receberam.</p></div>
+    </div>
+  </div>
+</section>
+</div>
+
+<dialog id="dlg"><form method="dialog" class="pad stack" id="f-new" style="gap:14px">
+  <h2 style="font-size:24px">Nova rodada</h2>
+  <div class="field"><label for="n-papel">Qual elo você comanda?</label><select id="n-papel"><option value="2" selected>Distribuidor</option><option value="3">Fábrica</option></select></div>
+  <div class="field"><label for="n-cen">Cenário de demanda</label><select id="n-cen"><option value="classico">Clássico</option><option value="promo">Promoção no varejo</option><option value="var">Demanda variável</option></select><span class="note">Comece pelo clássico. Os outros servem para testar se o que você aprendeu vale em outra situação.</span></div>
+  <div class="field"><span class="lab">Contramedidas (deixe desligadas na primeira rodada)</span>
+    <label class="chk"><input type="checkbox" id="n-info"><span>Informação compartilhada</span></label>
+    <label class="chk"><input type="checkbox" id="n-lead"><span>Lead time menor</span></label>
+    <label class="chk"><input type="checkbox" id="n-pipe"><span>Reposição que conta o que está a caminho</span></label></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn small" type="button" id="n-cancel">Cancelar</button><button class="btn small primary" type="submit" style="font-size:15px;padding:9px 12px">Começar</button></div>
+</form></dialog>
+<dialog id="dlg0"><div class="pad stack" style="gap:14px">
+  <span class="tag">Cervejaria Vale Dourado</span>
+  <h2 style="font-size:26px">Você vai comandar um elo desta cadeia por 36 semanas.</h2>
+  <ol style="margin:0;padding-left:20px;line-height:1.5"><li>Toda semana chegam caixas e seu cliente faz um pedido.</li><li>Você entrega o que tiver e decide quantas caixas pedir.</li><li>Caixa parada custa R$ 0,50. Caixa em falta custa R$ 1,00. Gaste o mínimo.</li></ol>
+  <p style="margin:0">O Zeca, seu ajudante, explica cada passo nas primeiras semanas. Onde você quer trabalhar?</p>
+  <div class="roles"><button class="role" data-papel="2"><b>Distribuidor</b><span>Compra da fábrica e entrega para o atacado. Bom para começar.</span></button><button class="role" data-papel="3"><b>Fábrica</b><span>Decide quanto produzir. Fica mais longe do consumidor.</span></button></div>
+</div></dialog>
+<div id="toast" role="status"></div>
+<script>(function(root){
+  var T=36, NOMES=['Varejo','Atacado','Distribuidor','Fábrica'], TH=0.36, AS=0.26;
+  function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+  function demanda(S,w){
+    if(S.cen==='promo')return (w===9||w===10)?12:4;
+    if(S.cen==='var'){var r=rng(S.seed+w*7919);return 4+Math.floor(r()*5)+(w>18?2:0)}
+    return w<=4?4:8;
+  }
+  function rep(n,v){var a=[];for(var i=0;i<n;i++)a.push(v);return a}
+  function novo(papel,cen,lev,seed){
+    lev=lev||{};var D=lev.lead?1:2,S={v:1,papel:papel,cen:cen||'classico',lev:{info:!!lev.info,lead:!!lev.lead,pipe:!!lev.pipe},seed:seed||((Math.random()*1e9)|0),w:1,fim:false,auto:false,D:D,st:[],hist:[],meus:[]};
+    for(var i=0;i<4;i++)S.st.push({inv:12,back:0,ship:rep(i===3?D+1:D,4),ord:i>0?rep(D,4):[],exp:4,custo:0});
+    fase1(S);return S;
+  }
+  function sum(a){return a.reduce(function(x,y){return x+y},0)}
+  function linha(S,i){var s=S.st[i];return sum(s.ship)+(i<3?sum(S.st[i+1].ord)+S.st[i+1].back:0)}
+  function bot(S,i){
+    var s=S.st[i],beta=S.lev.pipe?1:0.34,eq=4*(i===3?S.D+1:2*S.D),alvo=12+beta*eq;
+    return Math.max(0,Math.round(s.exp+AS*(alvo-(s.inv-s.back)-beta*linha(S,i))));
+  }
+  /* início da semana: chegam entregas e pedidos, cada elo atende o que consegue */
+  function fase1(S){
+    var w=S.w,dem=demanda(S,w),row={w:w,dem:dem,e:[]},i,rec=[],inc=[];
+    for(i=0;i<4;i++){rec[i]=S.st[i].ship.shift();S.st[i].inv+=rec[i];inc[i]=i===0?dem:S.st[i].ord.shift()}
+    for(i=0;i<4;i++){
+      var s=S.st[i],need=inc[i]+s.back,out=Math.min(s.inv,need);
+      s.inv-=out;s.back=need-out;if(i>0)S.st[i-1].ship.push(out);
+      s.exp=TH*(S.lev.info?dem:inc[i])+(1-TH)*s.exp;
+      var c=0.5*s.inv+1*s.back;s.custo+=c;
+      row.e.push({inc:inc[i],rec:rec[i],out:out,inv:s.inv,back:s.back,ord:null,custo:c});
+    }
+    S.cur=row;
+  }
+  /* fim da semana: cada elo faz o seu pedido */
+  function fase2(S,pedido){
+    if(S.fim)return;
+    for(var i=0;i<4;i++){
+      var o=(i===S.papel&&!S.auto&&pedido!=null)?Math.max(0,Math.round(pedido)):bot(S,i);
+      S.cur.e[i].ord=o;if(i<3)S.st[i+1].ord.push(o);else S.st[3].ship.push(o);
+    }
+    if(!(S.auto||pedido==null))S.meus.push(S.w);
+    S.hist.push(S.cur);S.w++;
+    if(S.w>T){S.fim=true;S.cur=null}else fase1(S);
+  }
+  function variancia(a){if(a.length<2)return 0;var m=sum(a)/a.length;return sum(a.map(function(x){return (x-m)*(x-m)}))/(a.length-1)}
+  function resumo(S){
+    var vd=variancia(S.hist.map(function(r){return r.dem})),out={custo:[],chicote:[],total:0,pico:[]};
+    for(var i=0;i<4;i++){var o=S.hist.map(function(r){return r.e[i].ord});out.custo.push(S.st[i].custo);out.total+=S.st[i].custo;out.chicote.push(vd>0?variancia(o)/vd:0);out.pico.push(Math.max.apply(null,o))}
+    return out;
+  }
+  root.BG={T:T,NOMES:NOMES,novo:novo,fase2:fase2,bot:bot,linha:linha,resumo:resumo,demanda:demanda};
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>(function(){
+var $=function(id){return document.getElementById(id)},KEY='efeito-chicote-v2',KR='efeito-chicote-rodadas',S,RUNS=[],busy=false;
+var N=BG.NOMES,COR=['#1f6fa8','#17783f','#f39200','#c2321c'],CEN={classico:'clássico',promo:'promoção no varejo','var':'demanda variável'};
+var CLI=['os consumidores','o varejo','o atacado','o distribuidor'],FORN=['o atacado','o distribuidor','a fábrica','a sua linha de produção'];
+function n(x,d){return (+x).toLocaleString('pt-BR',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})}
+function brl(x){return 'R$ '+n(x,2)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){e.style.display='none'},2600)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));localStorage.setItem(KR,JSON.stringify(RUNS))}catch(e){}}
+function load0(){var ok=false;try{var a=JSON.parse(localStorage.getItem(KEY));if(a&&a.v===1){S=a;ok=true}RUNS=JSON.parse(localStorage.getItem(KR))||[]}catch(e){}if(!S)S=BG.novo(2,'classico',{});return ok}
+function levTxt(l){var a=[];if(l.info)a.push('informação compartilhada');if(l.lead)a.push('lead time menor');if(l.pipe)a.push('reposição que conta o que está a caminho');return a.length?a.join(' + '):'nenhuma'}
+/* ---------- cenário em linha ---------- */
+var U=23,KY=0.55,OX=136,OY=196;
+function P(x,y,z){return [OX+x*U-y*U*KY,OY+y*U*KY-(z||0)*U]}
+function f1(v){return Math.round(v*10)/10}
+function pts(a){return a.map(function(p){return f1(p[0])+','+f1(p[1])}).join(' ')}
+function poly(a,fill,x){return '<polygon points="'+pts(a)+'" fill="'+fill+'"'+(x?' '+x:'')+'/>'}
+function box(x0,y0,x1,y1,h,c,z){z=z||0;return poly([P(x1,y0,z),P(x1,y1,z),P(x1,y1,z+h),P(x1,y0,z+h)],c[2])+poly([P(x0,y0,z+h),P(x1,y0,z+h),P(x1,y1,z+h),P(x0,y1,z+h)],c[0])+poly([P(x0,y1,z),P(x1,y1,z),P(x1,y1,z+h),P(x0,y1,z+h)],c[1])}
+function cyl(cx,cy,r,h,g,top,z){z=z||0;var b=P(cx,cy,z),t=P(cx,cy,z+h),rx=r*U,ry=rx*0.32;return '<path d="M'+f1(b[0]-rx)+' '+f1(t[1])+'V'+f1(b[1])+'A'+f1(rx)+' '+f1(ry)+' 0 0 0 '+f1(b[0]+rx)+' '+f1(b[1])+'V'+f1(t[1])+'Z" fill="url(#'+g+')"/><ellipse cx="'+f1(t[0])+'" cy="'+f1(t[1])+'" rx="'+f1(rx)+'" ry="'+f1(ry)+'" fill="'+top+'" stroke="rgba(0,0,0,.18)"/>'}
+function tree(x,y,s){var p=P(x,y,0);s=s||1;return '<ellipse cx="'+f1(p[0])+'" cy="'+f1(p[1])+'" rx="'+10*s+'" ry="'+4*s+'" fill="rgba(0,0,0,.18)"/><rect x="'+f1(p[0]-2)+'" y="'+f1(p[1]-12*s)+'" width="4" height="'+12*s+'" fill="#6b4a2f"/><ellipse cx="'+f1(p[0])+'" cy="'+f1(p[1]-22*s)+'" rx="'+13*s+'" ry="'+15*s+'" fill="#2f7d3b"/><ellipse cx="'+f1(p[0]-3*s)+'" cy="'+f1(p[1]-26*s)+'" rx="'+8*s+'" ry="'+9*s+'" fill="#49a356"/>'}
+function person(x,y,c){var p=P(x,y,0);return '<ellipse cx="'+f1(p[0])+'" cy="'+f1(p[1])+'" rx="6" ry="2.6" fill="rgba(0,0,0,.2)"/><rect x="'+f1(p[0]-3.5)+'" y="'+f1(p[1]-14)+'" width="7" height="13" rx="3" fill="'+c+'"/><circle cx="'+f1(p[0])+'" cy="'+f1(p[1]-18)+'" r="4.2" fill="#d9a877"/>'}
+var SX=[26,17.6,9.2,0.8],HH=[2.0,2.3,2.7,2.5],BW=3.8;
+function pill(cx,cy,txt,cls,w){w=w||(txt.length*7.6+16);return '<rect x="'+f1(cx-w/2)+'" y="'+f1(cy-11)+'" width="'+f1(w)+'" height="21" rx="10.5" class="pill '+(cls||'')+'"/><text class="ro" x="'+f1(cx)+'" y="'+f1(cy+4.5)+'" text-anchor="middle">'+txt+'</text>'}
+function tag(px,py,title,val,bad,w,voce){var h=val!=null?38:22,y0=py-8-h,s='';w=w||124;
+  if(voce)s+='<rect x="'+f1(px-26)+'" y="'+f1(y0-19)+'" width="52" height="17" rx="4" fill="#f39200" stroke="#262726" stroke-width="1.4"/><text class="voce" x="'+f1(px)+'" y="'+f1(y0-6)+'" text-anchor="middle" style="fill:#1d1300">VOCÊ</text>';
+  s+='<path d="M'+f1(px-5)+' '+f1(py-9)+'L'+f1(px)+' '+f1(py-2)+'L'+f1(px+5)+' '+f1(py-9)+'Z" class="tag-bg"/><rect class="tag-bg" x="'+f1(px-w/2)+'" y="'+f1(y0)+'" width="'+w+'" height="'+h+'" rx="5"'+(voce?' style="stroke:#f39200;stroke-width:2.6"':'')+'/><text class="lbl" x="'+f1(px)+'" y="'+f1(y0+15)+'" text-anchor="middle">'+title+'</text>';
+  if(val!=null)s+='<text class="ro'+(bad?' bad':'')+'" x="'+f1(px)+'" y="'+f1(y0+31)+'" text-anchor="middle">'+val+'</text>';return s}
+var PAL=[['#fff3d6','#f2dfb0','#d1b983'],['#e9e2f3','#cdbfe3','#a694c4'],['#dfe8ef','#b7c8d6','#7f95a6'],['#d98a72','#b05f47','#8a4633']];
+function site(i){
+  var x=SX[i],h=HH[i],y1=2.6,g='',vis=S.fim||i===S.papel,st=S.st[i],k;
+  var fr=function(a,b,z0,z1,c){return poly([P(x+a,y1,z0),P(x+b,y1,z0),P(x+b,y1,z1),P(x+a,y1,z1)],c)};
+  if(i===S.papel)g+=poly([P(x-0.7,-0.3),P(x+BW+0.9,-0.3),P(x+BW+0.9,4.7),P(x-0.7,4.7)],'#ffe2b0','stroke="#f39200" stroke-width="2.5"');
+  if(i===3){g+=cyl(x+BW+0.9,0.8,0.55,2.6,'g-org','#ffd08a')+cyl(x+BW+0.9,2.0,0.55,2.6,'g-org','#ffd08a')}
+  g+=box(x,0,x+BW,y1,h,PAL[i]);
+  if(i===3){g+=box(x-0.1,-0.1,x+BW+0.1,y1+0.1,0.25,['#5d6368','#474c50','#34383b'],h)+fr(1.3,2.5,0,1.6,'#3b3f42')+fr(0.3,1.0,1.0,1.7,'#7fc4e8')+fr(2.8,3.5,1.0,1.7,'#7fc4e8')+cyl(x+3,0.7,0.3,2.6,'g-dark','#25282a',h+0.25);
+    var ch=P(x+3,0.7,h+2.9);for(k=0;k<3;k++)g+='<circle class="smoke s'+k+'" cx="'+f1(ch[0])+'" cy="'+f1(ch[1])+'" r="8"/>'}
+  else if(i===2){g+=box(x-0.1,-0.1,x+BW+0.1,y1+0.1,0.22,['#3f6f93','#2f5673','#22415a'],h)+fr(0.4,1.7,0,1.7,'#4a5560')+fr(2.1,3.4,0,1.7,'#4a5560')}
+  else if(i===1){g+=box(x-0.1,-0.1,x+BW+0.1,y1+0.1,0.22,['#7a62a8','#5e4a86','#463767'],h)+fr(1.2,2.6,0,1.6,'#4a5560')}
+  else{g+=box(x-0.1,-0.1,x+BW+0.1,y1+0.1,0.2,['#c2321c','#9c2716','#771d10'],h)+fr(1.6,2.2,0,1.25,'#6b4a2f')+fr(0.3,1.2,0.5,1.25,'#7fc4e8')+fr(2.6,3.5,0.5,1.25,'#7fc4e8');
+    for(k=0;k<6;k++)g+=poly([P(x+k*BW/6,y1,1.5),P(x+(k+1)*BW/6,y1,1.5),P(x+(k+1)*BW/6,y1+0.7,1.25),P(x+k*BW/6,y1+0.7,1.25)],k%2?'#fffdf5':'#f39200')}
+  if(vis){var nc=Math.min(28,Math.ceil(st.inv/4)),cr=[];for(k=0;k<nc;k++){var l=Math.floor(k/14),c=(k%14)%7,r=Math.floor((k%14)/7);cr.push([r,l,c])}
+    cr.sort(function(a,b){return a[0]-b[0]||a[1]-b[1]||b[2]-a[2]});cr.forEach(function(q){var cx=x+0.15+q[2]*0.52,cy=3.1+q[0]*0.6;g+=box(cx,cy,cx+0.44,cy+0.5,0.42,['#f6c56b','#d99a2b','#b07a17'],q[1]*0.42)})}
+  else g+=box(x+0.15,3.1,x+BW-0.15,4.2,0.8,['#9aa5ad','#7d8890','#66717a']);
+  return g;
+}
+function scene(){
+  var W=960,H=336,s='',i,p;
+  s+='<defs><linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd4f2"/><stop offset="1" stop-color="#e8f6fc"/></linearGradient>'+
+    '<linearGradient id="g-org"><stop offset="0" stop-color="#b86a00"/><stop offset=".3" stop-color="#ffc266"/><stop offset=".7" stop-color="#f39200"/><stop offset="1" stop-color="#8f5200"/></linearGradient>'+
+    '<linearGradient id="g-dark"><stop offset="0" stop-color="#34383b"/><stop offset=".3" stop-color="#7c8286"/><stop offset=".7" stop-color="#4c5154"/><stop offset="1" stop-color="#25282a"/></linearGradient>'+
+    '<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#262726"/></marker></defs>';
+  s+='<rect width="'+W+'" height="'+H+'" fill="url(#g-sky)"/><circle cx="'+f1(60+(S.fim?36:S.w)/36*840)+'" cy="24" r="14" fill="#ffd54a" stroke="#fff3b0" stroke-width="4"/>';
+  s+='<g class="cloud" fill="#fff" opacity=".9"><ellipse cx="60" cy="40" rx="34" ry="10"/><ellipse cx="82" cy="32" rx="22" ry="10"/><ellipse cx="900" cy="30" rx="36" ry="10"/><ellipse cx="878" cy="22" rx="22" ry="10"/></g>';
+  var x0=-1,x1=36.6;
+  s+=poly([P(x0,-0.9),P(x1,-0.9),P(x1,8.6),P(x0,8.6)],'#7cc36a')+poly([P(x0,8.6),P(x1,8.6),[P(x1,8.6)[0],P(x1,8.6)[1]+14],[P(x0,8.6)[0],P(x0,8.6)[1]+14]],'#7a5a3a');
+  s+=poly([P(x0,-0.4),P(x1,-0.4),P(x1,4.9),P(x0,4.9)],'#d3d7d6','stroke="#b9bfbd"');
+  s+=poly([P(x0,5.2),P(x1,5.2),P(x1,7.1),P(x0,7.1)],'#575c61')+'<polyline points="'+pts([P(x0,6.15),P(x1,6.15)])+'" stroke="#f4e9a6" stroke-width="2" stroke-dasharray="14 12" fill="none"/>';
+  [6.9,15.3,23.7].forEach(function(x){s+=tree(x,0.2,1)});[0,5.5,11,16.5,22,27.5,33].forEach(function(x,k){s+=tree(x+1.2,8.0,0.85+(k%2)*0.15)});
+  for(i=3;i>=0;i--)s+=site(i);
+  var dem=S.cur?S.cur.dem:(S.hist.length?S.hist[S.hist.length-1].dem:4),np=Math.min(6,Math.max(1,Math.round(dem/2)));
+  for(i=0;i<np;i++)s+=person(32.3+(i%3)*0.8,2.2+Math.floor(i/3)*1.1,['#1f6fa8','#17783f','#c2321c','#575756','#7a62a8','#b86a00'][i]);
+  // fluxos: pedidos (voltam) e entregas (vão)
+  var last=S.hist.length?S.hist[S.hist.length-1]:null;
+  for(i=0;i<3;i++){var see=S.fim||i===S.papel||i+1===S.papel,xa=SX[i+1]+BW/2+1.6,xb=SX[i]+BW/2-1.6,mx=(xa+xb)/2,pa=P(xb,1.3,5.5),pb=P(xa,1.3,5.5),pm=P(mx,1.3,7.3);
+    s+='<path d="M'+f1(pa[0])+' '+f1(pa[1])+'Q'+f1(pm[0])+' '+f1(pm[1])+' '+f1(pb[0])+' '+f1(pb[1])+'" fill="none" stroke="#262726" stroke-width="1.6" stroke-dasharray="4 5" marker-end="url(#ah)"/>';
+    var po=P(mx,1.3,6.4);s+=pill(po[0],po[1],'pedido '+(last?(see?last.e[i].ord:'?'):4),see?'on':'');
+    var pe=P(mx,6.15,0);s+='<line x1="'+f1(pe[0]-46)+'" y1="'+f1(pe[1]+22)+'" x2="'+f1(pe[0]+46)+'" y2="'+f1(pe[1]+22)+'" stroke="#262726" stroke-width="1.6" marker-end="url(#ah)"/>'+pill(pe[0],pe[1]+22,'entrega '+(last?(see?last.e[i+1].out:'?'):4),see?'on':'')}
+  s+='<g id="mv"></g>';
+  for(i=0;i<4;i++){var vis=S.fim||i===S.papel,st=S.st[i];p=P(SX[i]+BW/2,1.3,HH[i]+0.3);
+    s+=tag(p[0]+(i===3?-22:0),p[1]-4,N[i],vis?('estoque '+st.inv+(st.back?' · atraso '+st.back:'')):'estoque oculto',vis&&st.back>0,vis&&st.back?172:124,i===S.papel)}
+  p=P(33.2,1.3,1.6);var seeD=S.fim||S.lev.info;s+=tag(p[0]+14,p[1]+16,'Consumidores',seeD?('compram '+dem+'/sem.'):'compra oculta',false,124,false);
+  $('cena').setAttribute('viewBox','0 0 '+W+' '+H);$('cena').innerHTML=s;
+}
+function local(fn){var a=OX,b=OY;OX=0;OY=0;var r=fn();OX=a;OY=b;return r}
+function truckG(lbl){return local(function(){var c=['#ffc266','#f39200','#b86a00'],w=function(x){var p=P(x,0.75,0.05);return '<circle cx="'+f1(p[0])+'" cy="'+f1(p[1]-4)+'" r="5.2" fill="#1d2022"/><circle cx="'+f1(p[0])+'" cy="'+f1(p[1]-4)+'" r="2" fill="#9aa5ad"/>'},p=P(0.9,0.4,1.75);
+  return box(0,0,1.9,0.75,0.95,c,0.3)+box(2.0,0,2.75,0.75,0.75,['#f4f6f7','#e3e7ea','#aab2b8'],0.3)+poly([P(2.3,0.75,0.65),P(2.7,0.75,0.65),P(2.7,0.75,0.98),P(2.3,0.75,0.98)],'#7fc4e8')+w(0.45)+w(1.45)+w(2.4)+(lbl!=null?pill(p[0],p[1]-6,String(lbl),'on',34):'')})}
+function envG(lbl){return '<rect x="-12" y="-8" width="24" height="16" rx="2" fill="#fffdf5" stroke="#262726" stroke-width="1.4"/><path d="M-12 -8l12 9l12 -9" fill="none" stroke="#262726" stroke-width="1.4"/>'+(lbl!=null?pill(0,-22,String(lbl),'on',34):'')}
+function move(html,a,b,ms,delay){var g=$('mv');if(!g||!g.animate)return;var e=document.createElementNS('http://www.w3.org/2000/svg','g');e.setAttribute('class','mv');e.innerHTML=html;e.style.opacity=0;g.appendChild(e);
+  var k=function(q){return 'translate('+f1(q[0])+'px,'+f1(q[1])+'px)'},an=e.animate([{transform:k(a),opacity:1},{transform:k(b),opacity:1}],{duration:ms,delay:delay||0,easing:'ease-in-out',fill:'forwards'});an.onfinish=function(){e.remove()}}
+function animar(row){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  for(var i=0;i<3;i++){var see=S.fim||i===S.papel||i+1===S.papel,q=row.e[i+1].out;if(q>0)move(truckG(see?q:null),P(SX[i+1]+BW-1.5,5.45),P(SX[i]-1.6,5.45),1900);
+    var seeO=S.fim||i===S.papel,ord=row.e[i].ord;if(ord>0)move(envG(seeO?ord:null),P(SX[i]+BW/2-1.6,1.3,6.4),P(SX[i+1]+BW/2+1.6,1.3,6.4),1500,300)}
+  if(row.e[0].out>0)move(truckG(null),P(SX[0]+BW-1.5,5.45),P(34,5.45),1900);
+}
+/* ---------- ajudante e painel ---------- */
+var ajuda=false;
+function zeca(){
+  var p=S.papel,fab=p===3;
+  if(S.fim)return 'Acabou a rodada! Agora dá para ver a cadeia inteira. Clique em “Análise” lá em cima e compare o que os consumidores compraram com o que cada um pediu.';
+  var e=S.cur.e[p],st=S.st[p],acam=st.ship.reduce(function(a,b){return a+b},0),h=S.hist,last=h.length?h[h.length-1].e[p]:null,esp=fab?3:4;
+  if(ajuda){var m3=h.slice(-3).map(function(r){return r.e[p].inc}).concat([e.inc]),med=m3.reduce(function(a,b){return a+b},0)/m3.length,rec=h.slice(-2).map(function(r){return r.e[p].ord});
+    return 'Vamos fazer a conta juntos. Você tem '+st.inv+' no estoque'+(st.back?' e deve '+st.back:'')+'. Já estão '+(fab?'em produção ':'na estrada ')+acam+' caixas.'+(!fab&&rec.length?' E os pedidos das duas últimas semanas ('+rec.join(' e ')+') ainda nem saíram de lá.':'')+' Seu cliente tem pedido '+n(med,0)+' por semana, em média. Pergunta que resolve: o que já está a caminho cobre o que vai sair até o próximo pedido chegar?'}
+  if(S.w===1)return 'Oi, eu sou o Zeca e vou te acompanhar. Toda semana acontecem 3 coisas, que aparecem numeradas ao lado: chegam caixas, seu cliente faz um pedido e você entrega. Depois é a sua vez: dizer quantas caixas '+(fab?'mandar produzir':'pedir para a fábrica')+'. Está tudo calmo, então '+(fab?'produza':'peça')+' 4 e clique no botão laranja.';
+  if(S.w===2)return 'Viu o caminhão e o envelope? O caminhão leva caixas para a direita. O envelope leva o pedido para a esquerda. Atenção: o que você '+(fab?'manda produzir':'pede')+' hoje só chega daqui a '+esp+' semanas. Você decide hoje para um futuro que ainda não viu.';
+  if(S.w===3)return 'Sobre dinheiro: cada caixa parada custa R$ 0,50 por semana. Cada caixa que você fica devendo custa R$ 1,00. Ganha quem gasta menos nas 36 semanas. Nem estoque demais, nem falta.';
+  if(S.w===4)return 'Daqui para frente é com você. Olhe os 3 passos ao lado, decida e avance. Se bater dúvida, clique em “Pedir ajuda ao Zeca” que eu faço a conta com você.';
+  if(e.back>0&&acam>=e.back)return 'Você deve '+e.back+' caixas, mas calma: já tem '+acam+(fab?' em produção':' na estrada')+'. Some o que já está a caminho antes de pedir mais.';
+  if(e.back>0)return 'Faltou produto: você deve '+e.back+' caixas ao seu cliente. Lembre que o que pedir hoje demora '+esp+' semanas. Pedir o dobro agora vira estoque sobrando lá na frente.';
+  if(e.inv>30)return 'Tem '+e.inv+' caixas paradas, custando R$ '+n(e.inv*0.5,2)+' por semana. Olhe na tabela o que você pediu semanas atrás: foi isso que chegou agora.';
+  if(last&&e.inc>=last.inc*1.5&&e.inc>4)return 'Opa, seu cliente pediu '+e.inc+' de uma vez. Pense antes de reagir: ele está vendendo mais, ou só está enchendo o estoque dele?';
+  if(last&&last.ord>=e.inc*2&&last.ord>8)return 'Você pediu '+last.ord+' na semana passada e seu cliente pediu '+e.inc+' agora. Quem está antes de você na cadeia só enxerga o seu número.';
+  return ['Siga os 3 passos ao lado e decida. Na dúvida, peça ajuda.','O que está a caminho também conta: é estoque que ainda não chegou.','Pedido não é o mesmo que consumo. Às vezes o cliente pede mais só para repor o estoque dele.','Seu fornecedor só entrega o que tem. Se ele atrasar, pedir em dobro não acelera nada.'][S.w%4];
+}
+function render(){
+  var p=S.papel,fab=p===3,st=S.st[p],e=S.cur?S.cur.e[p]:(S.hist.length?S.hist[S.hist.length-1].e[p]:null);
+  $('k-w').textContent=S.fim?'encerrada':(S.w+' de '+BG.T);$('k-c').textContent=brl(st.custo);$('k-i').textContent=st.inv;var kb=$('k-b');kb.textContent=st.back;kb.className='num '+(st.back?'neg':'');
+  $('estado').textContent=S.fim?'Rodada encerrada · toda a cadeia visível':('Semana '+S.w+' de '+BG.T);
+  $('papel').textContent=N[p];$('papel-sub').textContent=fab?'Você produz e entrega para o distribuidor.':'Você compra da fábrica e entrega para o atacado.';
+  var cli=fab?'O distribuidor':'O atacado',forn=fab?'da sua linha de produção':'da fábrica',h='';
+  if(e){h+='<li><b>1</b><div><strong>Chegaram '+e.rec+' caixas</strong> '+forn+'.</div></li>';
+    h+='<li><b>2</b><div><strong>'+cli+' pediu '+e.inc+'.</strong> Você entregou '+e.out+'.'+(e.back?' <span class="neg">Ficou devendo '+e.back+'.</span>':'')+'</div></li>';
+    h+='<li><b>3</b><div><strong>Sobrou '+e.inv+' no estoque.</strong> Custo da semana: '+brl(e.custo)+'.</div></li>'}
+  $('passos').innerHTML=h;
+  var sh=st.ship;$('p-pipe').innerHTML=sh.map(function(v,k){return '<span class="slot"><small>'+(k===0?'próxima semana':k===1?'em 2 semanas':'em 3 semanas')+'</small>'+v+'</span>'}).join('');
+  $('p-pipe2').textContent=fab?'É o que já está sendo produzido.':'É o que a fábrica já despachou. Pedidos mais novos ainda não aparecem aqui.';
+  $('ped-lab').textContent=fab?'4. Sua vez: quantas caixas mandar produzir?':'4. Sua vez: quantas caixas pedir à fábrica?';
+  $('go').textContent=fab?'Produzir e avançar':'Pedir e avançar';
+  $('go').disabled=$('auto').disabled=$('ped').disabled=$('help').disabled=!!S.fim;$('ped-note').textContent=S.fim?'Rodada encerrada. Comece uma nova para testar outra estratégia.':(S.w===BG.T?'Esta é a última semana.':'Chega para você daqui a '+(fab?3:4)+' semanas.');
+  $('mentor').textContent=zeca();
+  var rows=S.hist.slice().reverse(),t='<table><thead><tr><th>Sem.</th><th title="Pedido recebido do cliente">Pedido</th><th title="Caixas que chegaram">Chegou</th><th title="Caixas entregues">Saiu</th><th title="Estoque">Est.</th><th title="Em atraso">Atr.</th><th title="Pedido que você fez">Pedi</th></tr></thead><tbody>';
+  rows.forEach(function(r){var x=r.e[p];t+='<tr><td>'+r.w+'</td><td>'+x.inc+'</td><td>'+x.rec+'</td><td>'+x.out+'</td><td>'+x.inv+'</td><td'+(x.back?' class="neg"':'')+'>'+x.back+'</td><td>'+x.ord+'</td></tr>'});
+  $('meu-hist').innerHTML=rows.length?t+'</tbody></table>':'';
+  $('m-rod').textContent=(S.fim?'Rodada encerrada':'Semana '+S.w+' de '+BG.T)+'. Você comanda: '+N[p]+'. Cenário: '+CEN[S.cen]+'. Contramedidas: '+levTxt(S.lev)+'.';
+  scene();
+}
+/* ---------- análise ---------- */
+function chart(title,series,zero){
+  var W=620,H=320,m={l:44,r:14,t:34,b:30},all=[].concat.apply([],series.map(function(s){return s.v})),lo=Math.min(0,Math.min.apply(null,all)),hi=Math.max(8,Math.max.apply(null,all)),nn=series[0].v.length;
+  var x=function(i){return m.l+(nn>1?i/(nn-1):0)*(W-m.l-m.r)},y=function(v){return H-m.b-(v-lo)/(hi-lo)*(H-m.t-m.b)},s='<text x="'+m.l+'" y="20" style="font:600 16px var(--fd);letter-spacing:.04em;fill:var(--ink)">'+title+'</text>',st=Math.max(1,Math.ceil((hi-lo)/6/5)*5),v;
+  for(v=Math.ceil(lo/st)*st;v<=hi;v+=st)s+='<line x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+f1(y(v))+'" y2="'+f1(y(v))+'" stroke="'+(v===0&&zero?'var(--ink-2)':'var(--line)')+'"/><text x="'+(m.l-6)+'" y="'+f1(y(v)+4)+'" text-anchor="end" style="font:11px var(--fm);fill:var(--ink-3)">'+v+'</text>';
+  for(var i=0;i<nn;i+=5)s+='<text x="'+f1(x(i))+'" y="'+(H-10)+'" text-anchor="middle" style="font:11px var(--fm);fill:var(--ink-3)">'+(i+1)+'</text>';
+  series.forEach(function(q){s+='<polyline fill="none" stroke="'+q.c+'" stroke-width="'+(q.d?2:2.4)+'"'+(q.d?' stroke-dasharray="5 4"':'')+' stroke-linejoin="round" points="'+q.v.map(function(v,i){return f1(x(i))+','+f1(y(v))}).join(' ')+'"/>'});
+  return '<div class="card"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+title+'">'+s+'</svg><div class="legend">'+series.map(function(q){return '<span><i style="background:'+q.c+'"></i>'+q.n+'</span>'}).join('')+'<span class="note">eixo horizontal: semana</span></div></div>';
+}
+function analise(){
+  var p=S.papel,h=S.hist,dem={n:'Demanda do consumidor',c:'#262726',d:1,v:h.map(function(r){return r.dem})};
+  if(!S.fim){
+    $('a-msg').innerHTML='<h2 style="font-size:22px">A cadeia inteira aparece quando a rodada terminar.</h2><p style="margin:8px 0 0">Por enquanto você só vê o seu elo, como um gerente de verdade. Termine as '+BG.T+' semanas e volte aqui.</p>';$('a-res').hidden=true;
+    $('a-charts').innerHTML=h.length>1?chart('Seu elo: pedidos recebidos e pedidos feitos',[{n:'Pedido que você recebeu',c:'#575756',v:h.map(function(r){return r.e[p].inc})},{n:'Pedido que você fez',c:COR[p],v:h.map(function(r){return r.e[p].ord})}])+chart('Seu elo: estoque menos atraso',[{n:N[p],c:COR[p],v:h.map(function(r){return r.e[p].inv-r.e[p].back})}],true):'';
+  }else{
+    var R=BG.resumo(S),t='<div class="pad" style="padding-bottom:6px"><h2 style="font-size:22px">Resultado da rodada</h2><p class="note" style="margin:4px 0 0">Amplificação = variância dos pedidos do elo dividida pela variância da demanda do consumidor. Acima de 1, o elo aumentou a oscilação que recebeu.</p></div><table><thead><tr><th class="l">Elo</th><th>Custo</th><th>Maior pedido</th><th>Amplificação</th></tr></thead><tbody>';
+    for(var i=0;i<4;i++)t+='<tr><td class="l">'+N[i]+(i===p?' (você)':'')+'</td><td>'+brl(R.custo[i])+'</td><td>'+R.pico[i]+'</td><td>'+n(R.chicote[i],1)+'</td></tr>';
+    t+='<tr><td class="l"><b>Cadeia inteira</b></td><td><b>'+brl(R.total)+'</b></td><td></td><td></td></tr></tbody></table>';$('a-res').innerHTML=t;$('a-res').hidden=false;
+    $('a-msg').innerHTML='<div class="prose"><h2 style="font-size:22px">O consumidor mudou pouco. A cadeia mudou muito.</h2><p>Compare a linha tracejada com as outras no primeiro gráfico. A demanda do consumidor teve, no máximo, uma mudança simples. Os pedidos foram crescendo a cada elo até chegar à fábrica. Isso é o <strong>efeito chicote</strong>.</p><p>Ninguém na cadeia errou de propósito. Cada elo viu só o pedido do seu cliente, tratou esse número como se fosse demanda, e esqueceu de contar o que já tinha pedido e ainda estava na estrada. Com quatro semanas de espera, a correção chega tarde e chega em dobro.</p><h3>Para o seu relatório</h3><ol><li>Em que semana o seu estoque zerou, e quanto você pediu nas três semanas seguintes?</li><li>Quanto do seu pedido era demanda do cliente e quanto era ajuste de estoque?</li><li>Qual elo teve a maior amplificação? Por que não foi o varejo?</li><li>Rode de novo com uma contramedida por vez. Qual reduziu mais o custo da cadeia, e por quê?</li></ol><p class="note">Referência: com os quatro elos no automático, sem contramedidas, o cenário clássico fecha em cerca de R$ 2.700 para a cadeia, com pico de 32 caixas no pedido da fábrica.</p></div>';
+    var S4=function(f){return [0,1,2,3].map(function(i){return {n:N[i],c:COR[i],v:h.map(function(r){return f(r.e[i])})}})};
+    $('a-charts').innerHTML=chart('Pedidos feitos por elo',S4(function(e){return e.ord}).concat([dem]))+chart('Estoque menos atraso, por elo',S4(function(e){return e.inv-e.back}),true);
+  }
+  var r='<div class="pad" style="padding-bottom:6px"><h2 style="font-size:22px">Rodadas concluídas</h2></div>';
+  if(RUNS.length){r+='<div style="overflow:auto"><table><thead><tr><th>#</th><th class="l">Você</th><th class="l">Cenário</th><th class="l">Contramedidas</th><th>Semanas decididas por você</th><th>Seu custo</th><th>Custo da cadeia</th><th>Amplificação na fábrica</th></tr></thead><tbody>';
+    RUNS.forEach(function(x,i){r+='<tr><td>'+(i+1)+'</td><td class="l">'+N[x.papel]+'</td><td class="l">'+CEN[x.cen]+'</td><td class="l">'+esc(levTxt(x.lev))+'</td><td>'+x.meus+'</td><td>'+brl(x.meu)+'</td><td>'+brl(x.total)+'</td><td>'+n(x.fab,1)+'</td></tr>'});
+    r+='</tbody></table></div><div class="pad"><button class="btn small" id="clr">Limpar a lista</button></div>'}
+  else r+='<p class="pad note" style="margin:0;padding-top:0">Nenhuma rodada concluída ainda. Cada rodada que você terminar entra aqui, para comparar antes e depois.</p>';
+  $('a-runs').innerHTML=r;var c=$('clr');if(c)c.addEventListener('click',function(){RUNS=[];save();analise()});
+}
+function fim(){var R=BG.resumo(S);RUNS.push({papel:S.papel,cen:S.cen,lev:S.lev,meus:S.meus.length,meu:R.custo[S.papel],total:R.total,fab:R.chicote[3]});save();toast('Rodada encerrada. A Análise mostra a cadeia inteira.')}
+function csv(){
+  if(!S.fim){toast('Os dados completos ficam disponíveis quando a rodada terminar.');return}
+  var head=['Semana','Demanda do consumidor'];N.forEach(function(nm){['pedido recebido','caixas recebidas','caixas entregues','estoque','atraso','pedido feito','custo'].forEach(function(c){head.push(nm+' - '+c)})});
+  var L=[head.join(';')];S.hist.forEach(function(r){var a=[r.w,r.dem];r.e.forEach(function(e){a.push(e.inc,e.rec,e.out,e.inv,e.back,e.ord,String(e.custo).replace('.',','))});L.push(a.join(';'))});
+  try{var u=URL.createObjectURL(new Blob(['﻿'+L.join('\r\n')],{type:'text/csv;charset=utf-8'})),l=document.createElement('a');l.href=u;l.download='efeito-chicote-rodada.csv';document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},2000);toast('Arquivo baixado.')}catch(e){toast('Não foi possível baixar neste navegador.')}
+}
+var VIEWS=['jogo','analise','missao'];
+function route(){var h=(location.hash||'').replace('#','');if(VIEWS.indexOf(h)<0)h='jogo';VIEWS.forEach(function(v){$('v-'+v).classList.toggle('on',v===h)});
+  Array.prototype.forEach.call(document.querySelectorAll('nav a'),function(a){if(a.getAttribute('href')==='#'+h)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});if(h==='analise')analise()}
+function start(){
+  var tem=load0();
+  $('go').addEventListener('click',function(){if(S.fim||busy)return;var v=Math.max(0,Math.min(999,Math.round(parseFloat($('ped').value)||0)));$('ped').value=v;ajuda=false;
+    BG.fase2(S,v);var row=S.hist[S.hist.length-1];if(S.fim)fim();save();render();animar(row);busy=true;setTimeout(function(){busy=false},450)});
+  $('ped').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('go').click()}});
+  $('help').addEventListener('click',function(){ajuda=true;$('mentor').textContent=zeca()});
+  $('auto').addEventListener('click',function(){if(S.fim)return;S.auto=true;while(!S.fim)BG.fase2(S,null);fim();save();render();location.hash='#analise'});
+  var open=function(){$('n-papel').value=S.papel>=2?S.papel:2;$('n-cen').value=S.cen;$('n-info').checked=S.lev.info;$('n-lead').checked=S.lev.lead;$('n-pipe').checked=S.lev.pipe;$('dlg').showModal()};
+  $('new').addEventListener('click',open);$('new2').addEventListener('click',open);$('n-cancel').addEventListener('click',function(){$('dlg').close()});
+  var nova=function(papel,cen,lev){S=BG.novo(papel,cen,lev);ajuda=false;$('ped').value=4;save();location.hash='#jogo';render();route();window.scrollTo(0,0)};
+  $('f-new').addEventListener('submit',function(){nova(+$('n-papel').value,$('n-cen').value,{info:$('n-info').checked,lev:0,lead:$('n-lead').checked,pipe:$('n-pipe').checked});toast('Nova rodada iniciada.')});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-papel]'),function(b){b.addEventListener('click',function(){$('dlg0').close();nova(+b.getAttribute('data-papel'),'classico',{})})});
+  $('csv').addEventListener('click',csv);window.addEventListener('hashchange',route);
+  render();route();if(!tem)$('dlg0').showModal();
+}
+start();
+})();
+</script>
+</body>
+</html>
