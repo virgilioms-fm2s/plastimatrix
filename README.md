@@ -4,5 +4,6 @@ Jogos de projeto para alunos de Green Belt e Black Belt. Rodam inteiros no naveg
 
 - **Plastimatrix** (indústria): https://virgilioms-fm2s.github.io/plastimatrix/
 - **Rota Segura** (serviços): https://virgilioms-fm2s.github.io/plastimatrix/rota-segura/
+- **Vila Serena** (saúde): https://virgilioms-fm2s.github.io/plastimatrix/vila-serena/
 
 Modelo de processo original do Plastimatrix: Marco César Prado Soares, FM2S.
