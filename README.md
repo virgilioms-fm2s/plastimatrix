@@ -1,9 +1,8 @@
-# Simulador Plastimatrix
+# Simuladores Lean Seis Sigma da FM2S
 
-Jogo de projeto Lean Seis Sigma da FM2S para alunos de Green Belt e Black Belt.
+Jogos de projeto para alunos de Green Belt e Black Belt. Rodam inteiros no navegador, e o progresso fica salvo no navegador de cada pessoa.
 
-Jogue em: https://virgilioms-fm2s.github.io/plastimatrix/
+- **Plastimatrix** (indústria): https://virgilioms-fm2s.github.io/plastimatrix/
+- **Rota Segura** (serviços): https://virgilioms-fm2s.github.io/plastimatrix/rota-segura/
 
-O simulador roda inteiro no navegador. O progresso fica salvo no navegador de cada pessoa.
-
-Modelo de processo original: Marco César Prado Soares, FM2S.
+Modelo de processo original do Plastimatrix: Marco César Prado Soares, FM2S.
